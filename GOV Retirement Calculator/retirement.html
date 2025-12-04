@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>মাধ্যমিক ও উচ্চ মাধ্যমিক রিটায়ারমেন্ট ক্যালকুলেটর</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600&family=Poppins:wght@400;600&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#faf5f5;padding:20px;font-family:"Noto Sans Bengali","Poppins",sans-serif;font-size:16px;line-height:1.6;color:#2b2b2b;transition:font-size .3s ease}
+    .container{display:flex;justify-content:center;align-items:flex-start;gap:25px;max-width:1150px;margin:auto;position:relative}
+    .calculator{background:#fff;border-radius:18px;padding:35px 30px;max-width:600px;width:100%;box-shadow:0 6px 20px rgba(190,30,45,.12);animation:fadeIn .8s ease-in-out;flex:1}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+    .calculator h1{font-size:2rem;margin-bottom:20px;color:#b3202e;text-align:center;font-weight:700}
+    .guide{background:#fff;padding:20px 22px;border-radius:14px;font-size:.95rem;border-left:5px solid #b3202e;max-width:360px;position:sticky;top:20px;height:fit-content;align-self:flex-start;box-shadow:0 6px 16px rgba(190,30,45,.12)}
+    .guide p{font-weight:600;margin-bottom:8px;color:#b3202e}
+    .guide ul{margin-top:8px;padding-left:20px}
+    .guide li{margin-bottom:8px}
+    label{display:block;margin-bottom:8px;font-weight:600;color:#333;text-align:left}
+    input[type=date]{width:100%;padding:12px;margin-bottom:20px;border:1.8px solid #ccc;border-radius:8px;font-size:1rem;transition:border-color .3s}
+    input[type=date]:focus{border-color:#b3202e;outline:none}
+    button{background:#b3202e;color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;font-size:1rem;font-weight:600;transition:background .3s;width:100%}
+    button:hover{background:#8d1b25}
+    .result{margin-top:25px;padding:20px;background:#fdfdfd;border-radius:12px;border:1.5px solid #f0d7d7;animation:fadeIn .5s ease-in-out}
+    .result p{margin:10px 0;font-size:1rem}
+    .result span{color:#b3202e;font-weight:600}
+    .progress-container{margin-top:20px;background:#f1f1f1;border-radius:10px;overflow:hidden;height:20px;position:relative}
+    .progress-bar{height:100%;background:linear-gradient(90deg,#b3202e,#e44a5d);width:0%;transition:width 1s ease-in-out}
+    .progress-text{text-align:center;margin-top:8px;font-size:.95rem;color:#444}
+    footer{margin-top:40px;text-align:center;font-size:.95rem;background:#fff;padding:18px 25px;border-radius:14px;box-shadow:0 6px 16px rgba(190,30,45,.12);line-height:1.6;max-width:700px;margin-left:auto;margin-right:auto;border-top:4px solid #b3202e}
+    footer strong{color:#b3202e}
+    .font-controls{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:12px;z-index:1000}
+    .font-btn{width:44px;height:44px;border-radius:50%;background:#b3202e;color:#fff;border:none;font-size:22px;font-weight:bold;display:flex;justify-content:center;align-items:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:background .3s}
+    .font-btn:hover{background:#8d1b25}
+    @media(max-width:900px){.container{flex-direction:column;align-items:stretch}.guide{max-width:100%;position:relative;top:unset;margin-top:20px}}
+    @media(max-width:600px){.calculator{padding:25px 20px}.calculator h1{font-size:1.7rem}footer{font-size:.85rem;padding:15px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="calculator">
+      <h1>মাধ্যমিক ও উচ্চ মাধ্যমিক <br/>রিটায়ারমেন্ট ক্যালকুলেটর</h1>
+
+      <form id="retirementForm">
+        <label for="dob">আপনার জন্মতারিখ:</label>
+        <input type="date" id="dob" required>
+        <button type="submit">Calculate</button>
+      </form>
+
+      <div class="result" id="result" style="display:none;">
+        <p><strong>আপনার জন্মতারিখ:</strong> <span id="showDob"></span></p>
+        <p><strong>অবসরের তারিখ (৬০ বছর):</strong> <span id="retireDate"></span></p>
+        <p><strong>অবসর পর্যন্ত বাকি:</strong> <span id="daysRemaining"></span></p>
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-text" id="progressText"></div>
+      </div>
+    </div>
+
+    <div class="guide">
+      <p>👉 <strong>কিভাবে ব্যবহার করবেন:</strong></p>
+      <ul>
+        <li><b>জন্মতারিখ</b> ইনপুট দিন(মাস/দিন/বছর)।</li>
+        <li><b>সাবমিট বাটনে</b> ক্লিক করুন।</li>
+        <li>আপনি যা দেখবেন:
+          <ul>
+            <li><b>অবসরের বয়স (৬০ বছর)</b></li>
+            <li><b>সপ্তাহের কোন দিনে</b> অবসর হবে</li>
+            <li><b>কতদিন বাকি আছে</b> অবসর পর্যন্ত (আজকের তারিখ থেকে)</li>
+            <li>একটি <b>প্রোগ্রেস বার</b> সহ শতাংশ আপনার চাকরি জীবনের শেষ হয়েছে</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    © Copyright by <strong>Syed Ashik Mahmud</strong><br/>
+    Lecturer, ICT, Jajira Girls' School & College,<br/>
+    Jajira, Shariatpur.<br/>
+    Mobile: <strong>01717407376</strong>
+  </footer>
+
+  <!-- Floating Font Controls -->
+  <div class="font-controls">
+    <button class="font-btn" id="increaseFont">+</button>
+    <button class="font-btn" id="decreaseFont">−</button>
+  </div>
+
+  <script>
+    function formatDateWithWeekday(date) {
+      const options = { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" };
+      return date.toLocaleDateString("bn-BD", options);
+    }
+
+    document.getElementById("retirementForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const dobInput = document.getElementById("dob").value;
+      if (!dobInput) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'তারিখ প্রয়োজন!',
+          text: 'জন্মতারিখ নির্বাচন করুন।',
+          confirmButtonColor: '#b3202e'
+        });
+        return;
+      }
+
+      const dob = new Date(dobInput);
+      const retireDate = new Date(dob);
+      retireDate.setFullYear(retireDate.getFullYear() + 60);
+
+      const today = new Date();
+      const diffTime = retireDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24));
+
+      document.getElementById("showDob").textContent = formatDateWithWeekday(dob);
+      document.getElementById("retireDate").textContent = formatDateWithWeekday(retireDate);
+
+      if (diffDays >= 0) {
+        document.getElementById("daysRemaining").textContent = diffDays + " দিন বাকি";
+        Swal.fire({
+          icon: 'success',
+          title: 'হিসাব সম্পন্ন!',
+          text: `আপনার অবসর হবে ${formatDateWithWeekday(retireDate)} তারিখে।`,
+          confirmButtonColor: '#b3202e'
+        });
+      } else {
+        document.getElementById("daysRemaining").textContent = "আপনি ইতিমধ্যে অবসর নিয়েছেন!";
+        Swal.fire({
+          icon: 'info',
+          title: 'অবসর!',
+          text: 'আপনি ইতিমধ্যে অবসর নিয়েছেন!',
+          confirmButtonColor: '#b3202e'
+        });
+      }
+
+      const age = today.getFullYear() - dob.getFullYear() -
+                  (today < new Date(today.getFullYear(), dob.getMonth(), dob.getDate()) ? 1 : 0);
+      let progress = Math.min((age / 60) * 100, 100).toFixed(1);
+
+      const progressBar = document.getElementById("progressBar");
+      progressBar.style.width = progress + "%";
+      document.getElementById("progressText").textContent = `অগ্রগতি: ${progress}% (৬০ বছর পর্যন্ত)`;
+
+      document.getElementById("result").style.display = "block";
+    });
+
+    // Font size controls
+    const body = document.body;
+    document.getElementById("increaseFont").addEventListener("click", () => {
+      let current = parseFloat(window.getComputedStyle(body).fontSize);
+      body.style.fontSize = (current + 2) + "px";
+    });
+    document.getElementById("decreaseFont").addEventListener("click", () => {
+      let current = parseFloat(window.getComputedStyle(body).fontSize);
+      if (current > 12) body.style.fontSize = (current - 2) + "px";
+    });
+  </script>
+</body>
+</html>
